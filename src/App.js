@@ -17,12 +17,14 @@ const App = () => {
   };
   return (
     <Provider store={store}>
-      <div className="App d-flex flex-column align-items-center justify-content-center w-100">
+      <div className="App d-flex flex-column align-items-center w-100">
         <Container>
           {!showInvoiceForm && (
             <InvoiceList toggleInvoiceForm={toggleInvoiceForm} />
           )}
-          {showInvoiceForm && <InvoiceForm />}
+          {showInvoiceForm && (
+            <InvoiceForm toggleInvoiceForm={toggleInvoiceForm} />
+          )}
         </Container>
       </div>
     </Provider>

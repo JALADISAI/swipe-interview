@@ -9,7 +9,7 @@ const InvoiceList = (props) => {
       <Button
         onClick={() => props.toggleInvoiceForm(true)}
         variant="primary"
-        className="d-block w-100 mr-t-10"
+        className="d-block mr-t-10"
       >
         Create New Invoice
       </Button>
@@ -24,7 +24,19 @@ const InvoiceList = (props) => {
               <th>Total Amount</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            {invoiceList.map((item, index) => {
+              return (
+                <tr key={index}>
+                  <td>{item.data.invoiceNumber}</td>
+                  <td>{item.data.billTo}</td>
+                  <td>{item.data.billFrom}</td>
+                  <td>{item.data.dateOfIssue}</td>
+                  <td>{item.data.total}</td>
+                </tr>
+              );
+            })}
+          </tbody>
         </table>
       )}
       {invoiceList.length === 0 && (

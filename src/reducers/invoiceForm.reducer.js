@@ -2,6 +2,7 @@ import {
   invoiceFormBulkFeildsUpdate,
   invoiceFormFieldValue,
   invoiceFormItems,
+  invoiceFormReset,
 } from "../types";
 
 const initialState = {
@@ -23,7 +24,7 @@ const initialState = {
     taxRate: "",
     taxAmmount: "0.00",
     discountRate: "",
-    discountAmmount: "0.00",
+    discountAmount: "0.00",
   },
   items: [
     {
@@ -61,6 +62,9 @@ export default function invoiceFormReducer(state = initialState, action) {
           ...action.data,
         },
       };
+    }
+    case invoiceFormReset: {
+      return initialState;
     }
     default:
       return state;

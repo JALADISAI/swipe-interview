@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -12,37 +12,39 @@ import {
   handleFormFieldValue,
   handleFormItems,
   handleFormBulkUpdate,
+  handleInvoiceFormReset,
 } from "../../actions/invoiceForm.action";
 import { useDispatch, useSelector } from "react-redux";
+import { handleInvoiceListSaveItem } from "../../actions/invoiceList.action";
 
 const InvoiceForm = (props) => {
   const dispatch = useDispatch();
   const storeItems = [...useSelector((state) => state.invoiceForm.items || [])];
   const formValues = useSelector((state) => state.invoiceForm.formValues || {});
 
-  const handleCalculateTotal = () => {
+  const handleCalculateTotal = (list, data) => {
     var subTotal = 0;
-    console.log(`handleCalculateTotal`);
-    console.log(`storeItems`, storeItems);
-    storeItems.forEach(function (item) {
+    (list || storeItems).forEach(function (item) {
       subTotal = parseFloat(
         subTotal + parseFloat(item.price).toFixed(2) * parseInt(item.quantity)
       ).toFixed(2);
       subTotal = parseFloat(subTotal);
     });
+    const taxAmmount = parseFloat(
+      parseFloat(subTotal) * ((data?.taxRate || formValues.taxRate) / 100)
+    ).toFixed(2);
+    const discountAmount = parseFloat(
+      parseFloat(subTotal) *
+        ((data?.discountRate || formValues.discountRate) / 100)
+    ).toFixed(2);
 
     const temp = {
       subTotal: parseFloat(subTotal).toFixed(2),
-      taxAmmount: parseFloat(
-        parseFloat(subTotal) * (formValues.taxRate / 100)
+      taxAmmount,
+      discountAmount,
+      total: parseFloat(
+        subTotal - parseFloat(discountAmount) + parseFloat(taxAmmount)
       ).toFixed(2),
-      discountAmmount: parseFloat(
-        parseFloat(subTotal) * (formValues.discountRate / 100)
-      ).toFixed(2),
-      total:
-        subTotal -
-        formValues.discountAmmount +
-        parseFloat(formValues.taxAmmount),
     };
 
     dispatch(handleFormBulkUpdate(temp));
@@ -84,15 +86,16 @@ const InvoiceForm = (props) => {
       return temp;
     });
     dispatch(handleFormItems(newItems));
-    handleCalculateTotal();
+    handleCalculateTotal(newItems);
   };
   const editField = (event) => {
-    dispatch(
-      handleFormFieldValue({
-        key: event.target.name,
-        value: event.target.value,
-      })
-    );
+    const key = event.target.name;
+    const value = event.target.value;
+    const obj = { key, value };
+    dispatch(handleFormFieldValue(obj));
+    if (key === `taxRate` || key === `discountRate`) {
+      handleCalculateTotal(false, { [key]: value });
+    }
   };
   const onCurrencyChange = (selectedOption) => {
     dispatch(
@@ -109,6 +112,16 @@ const InvoiceForm = (props) => {
   };
   const closeModal = (event) =>
     dispatch(handleFormFieldValue({ key: `isOpen`, value: false }));
+  const handleCreateInvoice = () => {
+    dispatch(
+      handleInvoiceListSaveItem({
+        data: formValues,
+        items: storeItems,
+      })
+    );
+    dispatch(handleInvoiceFormReset());
+    props.toggleInvoiceForm(false);
+  };
   return (
     <Form onSubmit={openModal}>
       <Row>
@@ -247,7 +260,7 @@ const InvoiceForm = (props) => {
                       ({formValues.discountRate || 0}%)
                     </span>
                     {formValues.currency}
-                    {formValues.discountAmmount || 0}
+                    {formValues.discountAmount || 0}
                   </span>
                 </div>
                 <div className="d-flex flex-row align-items-start justify-content-between mt-2">
@@ -288,10 +301,18 @@ const InvoiceForm = (props) => {
         </Col>
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
-            <Button variant="primary" type="submit" className="d-block w-100">
+            <Button
+              variant="outline-primary"
+              type="submit"
+              className="d-block w-100"
+            >
               Review Invoice
             </Button>
-            <Button variant="primary" className="d-block w-100 mr-t-10">
+            <Button
+              onClick={handleCreateInvoice}
+              variant="primary"
+              className="d-block w-100 mr-t-10"
+            >
               Create Invoice
             </Button>
             <InvoiceModal
@@ -302,7 +323,7 @@ const InvoiceForm = (props) => {
               currency={formValues.currency}
               subTotal={formValues.subTotal}
               taxAmmount={formValues.taxAmmount}
-              discountAmmount={formValues.discountAmmount}
+              discountAmount={formValues.discountAmount}
               total={formValues.total}
             />
             <Form.Group className="mb-3">

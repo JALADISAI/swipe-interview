@@ -2,6 +2,7 @@ import {
   invoiceFormBulkFeildsUpdate,
   invoiceFormFieldValue,
   invoiceFormItems,
+  invoiceFormReset,
 } from "../types";
 
 export const handleFormFieldValue = (data) => {
@@ -22,5 +23,11 @@ export const handleFormBulkUpdate = (data) => {
   return {
     type: invoiceFormBulkFeildsUpdate,
     data,
+  };
+};
+
+export const handleInvoiceFormReset = () => {
+  return {
+    type: invoiceFormReset,
   };
 };
