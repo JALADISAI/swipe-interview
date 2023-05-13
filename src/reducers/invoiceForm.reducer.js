@@ -18,8 +18,8 @@ const initialState = {
     billFromEmail: "",
     billFromAddress: "",
     notes: "",
-    total: "0.00",
-    subTotal: "0.00",
+    total: "1.00",
+    subTotal: "1.00",
     taxRate: "",
     taxAmmount: "0.00",
     discountRate: "",
@@ -27,7 +27,7 @@ const initialState = {
   },
   items: [
     {
-      id: 0,
+      id: "1",
       name: "",
       description: "",
       price: "1.00",
@@ -50,7 +50,7 @@ export default function invoiceFormReducer(state = initialState, action) {
     case invoiceFormItems: {
       return {
         ...state,
-        items: action.items,
+        items: action.items || [],
       };
     }
     case invoiceFormBulkFeildsUpdate: {

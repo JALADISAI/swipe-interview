@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Row from "react-bootstrap/Row";
 import Col from "react-bootstrap/Col";
@@ -17,17 +17,42 @@ import { useDispatch, useSelector } from "react-redux";
 
 const InvoiceForm = (props) => {
   const dispatch = useDispatch();
-  const storeItems = useSelector((state) => state.invoiceForm.items || []);
+  const storeItems = [...useSelector((state) => state.invoiceForm.items || [])];
   const formValues = useSelector((state) => state.invoiceForm.formValues || {});
 
-  useEffect(() => {
-    handleCalculateTotal();
-  }, []);
+  const handleCalculateTotal = () => {
+    var subTotal = 0;
+    console.log(`handleCalculateTotal`);
+    console.log(`storeItems`, storeItems);
+    storeItems.forEach(function (item) {
+      subTotal = parseFloat(
+        subTotal + parseFloat(item.price).toFixed(2) * parseInt(item.quantity)
+      ).toFixed(2);
+      subTotal = parseFloat(subTotal);
+    });
+
+    const temp = {
+      subTotal: parseFloat(subTotal).toFixed(2),
+      taxAmmount: parseFloat(
+        parseFloat(subTotal) * (formValues.taxRate / 100)
+      ).toFixed(2),
+      discountAmmount: parseFloat(
+        parseFloat(subTotal) * (formValues.discountRate / 100)
+      ).toFixed(2),
+      total:
+        subTotal -
+        formValues.discountAmmount +
+        parseFloat(formValues.taxAmmount),
+    };
+
+    dispatch(handleFormBulkUpdate(temp));
+  };
 
   const handleRowDel = (items) => {
     var index = storeItems.indexOf(items);
     storeItems.splice(index, 1);
     dispatch(handleFormItems(storeItems));
+    handleCalculateTotal();
   };
   const handleAddEvent = (evt) => {
     var id = (+new Date() + Math.floor(Math.random() * 999999)).toString(36);
@@ -40,48 +65,23 @@ const InvoiceForm = (props) => {
     };
     storeItems.push(items);
     dispatch(handleFormItems(storeItems));
+    handleCalculateTotal();
   };
-  const handleCalculateTotal = () => {
-    console.log(`handleCalculateTotal`);
-    var items = storeItems;
-    var subTotal = 0;
 
-    items.forEach(function (items) {
-      subTotal = parseFloat(
-        subTotal + parseFloat(items.price).toFixed(2) * parseInt(items.quantity)
-      ).toFixed(2);
-    });
-
-    dispatch(
-      handleFormBulkUpdate({
-        subTotal: parseFloat(subTotal).toFixed(2),
-        taxAmmount: parseFloat(
-          parseFloat(subTotal) * (formValues.taxRate / 100)
-        ).toFixed(2),
-        discountAmmount: parseFloat(
-          parseFloat(subTotal) * (formValues.discountRate / 100)
-        ).toFixed(2),
-        total:
-          subTotal -
-          formValues.discountAmmount +
-          parseFloat(formValues.taxAmmount),
-      })
-    );
-  };
-  const onItemizedItemEdit = (evt) => {
+  const onItemizedItemEdit = (data) => {
     var item = {
-      id: evt.target.id,
-      name: evt.target.name,
-      value: evt.target.value,
+      id: data.id,
+      name: data.name,
+      value: data.value,
     };
-    var items = storeItems.slice();
-    var newItems = items.map(function (storeItem) {
-      for (var key in storeItem) {
-        if (key === item.name && storeItem.id === item.id) {
-          storeItem[key] = item.value;
+    var newItems = storeItems.map(function (storeItem) {
+      const temp = { ...storeItem };
+      for (var key in temp) {
+        if (key === item.name && temp.id === item.id) {
+          temp[key] = item.value;
         }
       }
-      return storeItem;
+      return temp;
     });
     dispatch(handleFormItems(newItems));
     handleCalculateTotal();
@@ -93,7 +93,6 @@ const InvoiceForm = (props) => {
         value: event.target.value,
       })
     );
-    handleCalculateTotal();
   };
   const onCurrencyChange = (selectedOption) => {
     dispatch(
@@ -105,7 +104,7 @@ const InvoiceForm = (props) => {
   };
   const openModal = (event) => {
     event.preventDefault();
-    handleCalculateTotal();
+
     dispatch(handleFormFieldValue({ key: `isOpen`, value: true }));
   };
   const closeModal = (event) =>
