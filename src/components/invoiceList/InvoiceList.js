@@ -1,6 +1,12 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
 import { useSelector } from "react-redux";
+import {
+  AiOutlineEye,
+  AiOutlineEdit,
+  AiOutlineDelete,
+  AiOutlineCopy,
+} from "react-icons/ai";
 
 const InvoiceList = (props) => {
   const invoiceList = useSelector((state) => state.invoiceList.list || []);
@@ -22,6 +28,7 @@ const InvoiceList = (props) => {
               <th>Bill From</th>
               <th>Due Date</th>
               <th>Total Amount</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -33,6 +40,12 @@ const InvoiceList = (props) => {
                   <td>{item.data.billFrom}</td>
                   <td>{item.data.dateOfIssue}</td>
                   <td>{item.data.total}</td>
+                  <td className="icons">
+                    <AiOutlineEye />
+                    <AiOutlineEdit />
+                    <AiOutlineCopy />
+                    <AiOutlineDelete />
+                  </td>
                 </tr>
               );
             })}
