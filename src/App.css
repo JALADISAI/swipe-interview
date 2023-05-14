@@ -95,3 +95,7 @@ hr {
   cursor: pointer;
   margin-right: 7px;
 }
+.invoiceNumber {
+  color: #0d6efd;
+  cursor: pointer;
+}

@@ -21,6 +21,9 @@ const InvoiceForm = (props) => {
   const dispatch = useDispatch();
   const storeItems = [...useSelector((state) => state.invoiceForm.items || [])];
   const formValues = useSelector((state) => state.invoiceForm.formValues || {});
+  const toggleFlags = useSelector(
+    (state) => state.invoiceForm.toggleFlags || {}
+  );
 
   const handleCalculateTotal = (list, data) => {
     var subTotal = 0;
@@ -112,14 +115,18 @@ const InvoiceForm = (props) => {
   };
   const closeModal = (event) =>
     dispatch(handleFormFieldValue({ key: `isOpen`, value: false }));
-  const handleCreateInvoice = () => {
-    dispatch(
-      handleInvoiceListSaveItem({
-        data: formValues,
-        items: storeItems,
-      })
-    );
+  const handleCreateInvoice = (isEdit) => {
+    !isEdit &&
+      dispatch(
+        handleInvoiceListSaveItem({
+          data: formValues,
+          items: storeItems,
+        })
+      );
     dispatch(handleInvoiceFormReset());
+    props.toggleInvoiceForm(false);
+  };
+  const handleBack = () => {
     props.toggleInvoiceForm(false);
   };
   return (
@@ -308,13 +315,24 @@ const InvoiceForm = (props) => {
             >
               Review Invoice
             </Button>
-            <Button
-              onClick={handleCreateInvoice}
-              variant="primary"
-              className="d-block w-100 mr-t-10"
-            >
-              Create Invoice
-            </Button>
+            {!toggleFlags.isView && (
+              <Button
+                onClick={() => handleCreateInvoice(toggleFlags.isEdit)}
+                variant="primary"
+                className="d-block w-100 mr-t-10"
+              >
+                {toggleFlags.isEdit ? `Update Invoice` : `Create Invoice`}
+              </Button>
+            )}
+            {(toggleFlags.isView || toggleFlags.isEdit) && (
+              <Button
+                onClick={handleBack}
+                variant="outline-secondary"
+                className="d-block w-100 mr-t-10"
+              >
+                Back
+              </Button>
+            )}
             <InvoiceModal
               showModal={formValues.isOpen}
               closeModal={closeModal}

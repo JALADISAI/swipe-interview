@@ -3,6 +3,7 @@ import {
   invoiceFormFieldValue,
   invoiceFormItems,
   invoiceFormReset,
+  invoiceFormRED,
 } from "../types";
 
 const initialState = {
@@ -35,6 +36,11 @@ const initialState = {
       quantity: 1,
     },
   ],
+  toggleFlags: {
+    isView: false,
+    isCopy: false,
+    isEdit: false,
+  },
 };
 
 export default function invoiceFormReducer(state = initialState, action) {
@@ -60,6 +66,18 @@ export default function invoiceFormReducer(state = initialState, action) {
         formValues: {
           ...state.formValues,
           ...action.data,
+        },
+      };
+    }
+    case invoiceFormRED: {
+      return {
+        ...state,
+        formValues: action.row.data,
+        items: action.row.items,
+        toggleFlags: {
+          isView: action.isView,
+          isEdit: action.isEdit,
+          isCopy: action.isCopy,
         },
       };
     }

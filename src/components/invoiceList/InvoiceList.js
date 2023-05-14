@@ -1,15 +1,41 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   AiOutlineEye,
   AiOutlineEdit,
   AiOutlineDelete,
   AiOutlineCopy,
 } from "react-icons/ai";
+import {
+  handleInvoiceFormRED,
+  handleInvoiceListDeleteItem,
+} from "../../actions/invoiceList.action";
+import { handleFormFieldValue } from "../../actions/invoiceForm.action";
 
 const InvoiceList = (props) => {
   const invoiceList = useSelector((state) => state.invoiceList.list || []);
+  const dispatch = useDispatch();
+
+  const handleClickInvoiceNumber = (row) => {
+    dispatch(handleInvoiceFormRED(row, true, false, false));
+    props.toggleInvoiceForm(true);
+  };
+  const handleClickPreviewIcon = (row) => {
+    dispatch(handleInvoiceFormRED(row));
+    dispatch(handleFormFieldValue({ key: `isOpen`, value: true }));
+  };
+  const handleClickEditIcon = (row) => {
+    dispatch(handleInvoiceFormRED(row, false, true, false));
+    props.toggleInvoiceForm(true);
+  };
+  const handleClickCopyIcon = (row) => {
+    dispatch(handleInvoiceFormRED(row, false, false, true));
+    props.toggleInvoiceForm(true);
+  };
+  const handleClickDeleteIcon = (row) => {
+    dispatch(handleInvoiceListDeleteItem(row.data.invoiceNumber));
+  };
   return (
     <div>
       <Button
@@ -35,16 +61,25 @@ const InvoiceList = (props) => {
             {invoiceList.map((item, index) => {
               return (
                 <tr key={index}>
-                  <td>{item.data.invoiceNumber}</td>
+                  <td
+                    className="invoiceNumber"
+                    onClick={() => handleClickInvoiceNumber(item)}
+                  >
+                    {item.data.invoiceNumber}
+                  </td>
                   <td>{item.data.billTo}</td>
                   <td>{item.data.billFrom}</td>
                   <td>{item.data.dateOfIssue}</td>
                   <td>{item.data.total}</td>
                   <td className="icons">
-                    <AiOutlineEye />
-                    <AiOutlineEdit />
-                    <AiOutlineCopy />
-                    <AiOutlineDelete />
+                    <AiOutlineEye
+                      onClick={() => handleClickInvoiceNumber(item)}
+                    />
+                    <AiOutlineEdit onClick={() => handleClickEditIcon(item)} />
+                    <AiOutlineCopy onClick={() => handleClickCopyIcon(item)} />
+                    <AiOutlineDelete
+                      onClick={() => handleClickDeleteIcon(item)}
+                    />
                   </td>
                 </tr>
               );
