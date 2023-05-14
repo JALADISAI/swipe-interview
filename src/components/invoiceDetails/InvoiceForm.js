@@ -15,7 +15,10 @@ import {
   handleInvoiceFormReset,
 } from "../../actions/invoiceForm.action";
 import { useDispatch, useSelector } from "react-redux";
-import { handleInvoiceListSaveItem } from "../../actions/invoiceList.action";
+import {
+  handleInvoiceFormUpdate,
+  handleInvoiceListSaveItem,
+} from "../../actions/invoiceList.action";
 
 const InvoiceForm = (props) => {
   const dispatch = useDispatch();
@@ -123,11 +126,19 @@ const InvoiceForm = (props) => {
           items: storeItems,
         })
       );
+    isEdit &&
+      dispatch(
+        handleInvoiceFormUpdate({
+          data: formValues,
+          items: storeItems,
+        })
+      );
     dispatch(handleInvoiceFormReset());
     props.toggleInvoiceForm(false);
   };
   const handleBack = () => {
     props.toggleInvoiceForm(false);
+    dispatch(handleInvoiceFormReset());
   };
   return (
     <Form onSubmit={openModal}>
@@ -164,6 +175,7 @@ const InvoiceForm = (props) => {
                   type="number"
                   value={formValues.invoiceNumber}
                   name={"invoiceNumber"}
+                  disabled={toggleFlags.isEdit}
                   onChange={(event) => editField(event)}
                   min="1"
                   style={{
@@ -324,7 +336,9 @@ const InvoiceForm = (props) => {
                 {toggleFlags.isEdit ? `Update Invoice` : `Create Invoice`}
               </Button>
             )}
-            {(toggleFlags.isView || toggleFlags.isEdit) && (
+            {(toggleFlags.isView ||
+              toggleFlags.isEdit ||
+              toggleFlags.isCopy) && (
               <Button
                 onClick={handleBack}
                 variant="outline-secondary"

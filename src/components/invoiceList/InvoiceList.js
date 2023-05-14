@@ -1,20 +1,31 @@
 import React from "react";
 import Button from "react-bootstrap/Button";
+
+import {
+  AiOutlineCopy,
+  AiOutlineDelete,
+  AiOutlineEdit,
+  AiOutlineEye,
+  AiOutlineDollarCircle,
+} from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  AiOutlineEye,
-  AiOutlineEdit,
-  AiOutlineDelete,
-  AiOutlineCopy,
-} from "react-icons/ai";
+  handleFormFieldValue,
+  handleInvoiceFormToggleFlag,
+} from "../../actions/invoiceForm.action";
 import {
   handleInvoiceFormRED,
   handleInvoiceListDeleteItem,
 } from "../../actions/invoiceList.action";
-import { handleFormFieldValue } from "../../actions/invoiceForm.action";
+import InvoiceModal from "../invoiceDetails/InvoiceModal";
 
 const InvoiceList = (props) => {
   const invoiceList = useSelector((state) => state.invoiceList.list || []);
+  const storeItems = [...useSelector((state) => state.invoiceForm.items || [])];
+  const formValues = useSelector((state) => state.invoiceForm.formValues || {});
+  const toggleFlags = useSelector(
+    (state) => state.invoiceForm.toggleFlags || {}
+  );
   const dispatch = useDispatch();
 
   const handleClickInvoiceNumber = (row) => {
@@ -24,6 +35,12 @@ const InvoiceList = (props) => {
   const handleClickPreviewIcon = (row) => {
     dispatch(handleInvoiceFormRED(row));
     dispatch(handleFormFieldValue({ key: `isOpen`, value: true }));
+    dispatch(
+      handleInvoiceFormToggleFlag({
+        key: `showPreviewInList`,
+        value: true,
+      })
+    );
   };
   const handleClickEditIcon = (row) => {
     dispatch(handleInvoiceFormRED(row, false, true, false));
@@ -36,6 +53,15 @@ const InvoiceList = (props) => {
   const handleClickDeleteIcon = (row) => {
     dispatch(handleInvoiceListDeleteItem(row.data.invoiceNumber));
   };
+  const closeModal = () => {
+    dispatch(
+      handleInvoiceFormToggleFlag({
+        key: `showPreviewInList`,
+        value: false,
+      })
+    );
+  };
+
   return (
     <div>
       <Button
@@ -70,10 +96,13 @@ const InvoiceList = (props) => {
                   <td>{item.data.billTo}</td>
                   <td>{item.data.billFrom}</td>
                   <td>{item.data.dateOfIssue}</td>
-                  <td>{item.data.total}</td>
+                  <td>
+                    <AiOutlineDollarCircle />
+                    {parseFloat(item.data.total).toLocaleString(`en-IN`)}
+                  </td>
                   <td className="icons">
                     <AiOutlineEye
-                      onClick={() => handleClickInvoiceNumber(item)}
+                      onClick={() => handleClickPreviewIcon(item)}
                     />
                     <AiOutlineEdit onClick={() => handleClickEditIcon(item)} />
                     <AiOutlineCopy onClick={() => handleClickCopyIcon(item)} />
@@ -91,6 +120,19 @@ const InvoiceList = (props) => {
         <div>
           <p>No Invoices to display</p>
         </div>
+      )}
+      {toggleFlags.showPreviewInList && (
+        <InvoiceModal
+          showModal={formValues.isOpen}
+          closeModal={closeModal}
+          info={formValues}
+          items={storeItems}
+          currency={formValues.currency}
+          subTotal={formValues.subTotal}
+          taxAmmount={formValues.taxAmmount}
+          discountAmount={formValues.discountAmount}
+          total={formValues.total}
+        />
       )}
     </div>
   );

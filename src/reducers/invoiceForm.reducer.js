@@ -4,6 +4,7 @@ import {
   invoiceFormItems,
   invoiceFormReset,
   invoiceFormRED,
+  invoiceFormToggleFlag,
 } from "../types";
 
 const initialState = {
@@ -75,9 +76,19 @@ export default function invoiceFormReducer(state = initialState, action) {
         formValues: action.row.data,
         items: action.row.items,
         toggleFlags: {
+          ...state.toggleFlags,
           isView: action.isView,
           isEdit: action.isEdit,
           isCopy: action.isCopy,
+        },
+      };
+    }
+    case invoiceFormToggleFlag: {
+      return {
+        ...state,
+        toggleFlags: {
+          ...state.toggleFlags,
+          [action.data.key]: action.data.value,
         },
       };
     }

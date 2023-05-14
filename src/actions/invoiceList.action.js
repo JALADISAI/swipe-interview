@@ -2,6 +2,7 @@ import {
   invoiceFormRED,
   invoiceListDeleteItem,
   invoiceListSaveItem,
+  invoiceListUpdateItem,
 } from "../types";
 
 export const handleInvoiceListSaveItem = (item) => {
@@ -24,5 +25,12 @@ export const handleInvoiceFormRED = (row, isView, isEdit, isCopy) => {
     isView,
     isEdit,
     isCopy,
+  };
+};
+
+export const handleInvoiceFormUpdate = (item) => {
+  return {
+    type: invoiceListUpdateItem,
+    item,
   };
 };

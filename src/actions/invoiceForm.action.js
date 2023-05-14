@@ -3,6 +3,7 @@ import {
   invoiceFormFieldValue,
   invoiceFormItems,
   invoiceFormReset,
+  invoiceFormToggleFlag,
 } from "../types";
 
 export const handleFormFieldValue = (data) => {
@@ -29,5 +30,12 @@ export const handleFormBulkUpdate = (data) => {
 export const handleInvoiceFormReset = () => {
   return {
     type: invoiceFormReset,
+  };
+};
+
+export const handleInvoiceFormToggleFlag = (data) => {
+  return {
+    type: invoiceFormToggleFlag,
+    data,
   };
 };
