@@ -12,7 +12,7 @@ const initialState = {
     isOpen: false,
     currency: "$",
     currentDate: "",
-    invoiceNumber: 1,
+    invoiceNumber: "",
     dateOfIssue: "",
     billTo: "",
     billToEmail: "",

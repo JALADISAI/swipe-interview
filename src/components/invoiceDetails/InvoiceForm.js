@@ -111,9 +111,7 @@ const InvoiceForm = (props) => {
       })
     );
   };
-  const openModal = (event) => {
-    event.preventDefault();
-
+  const openModal = () => {
     dispatch(handleFormFieldValue({ key: `isOpen`, value: true }));
   };
   const closeModal = (event) =>
@@ -141,7 +139,7 @@ const InvoiceForm = (props) => {
     dispatch(handleInvoiceFormReset());
   };
   return (
-    <Form onSubmit={openModal}>
+    <Form onSubmit={() => handleCreateInvoice(toggleFlags.isEdit)}>
       <Row>
         <Col md={8} lg={9}>
           <Card className="p-4 p-xl-5 my-3 my-xl-4">
@@ -173,7 +171,7 @@ const InvoiceForm = (props) => {
                 <span className="fw-bold me-2">Invoice&nbsp;Number:&nbsp;</span>
                 <Form.Control
                   type="number"
-                  value={formValues.invoiceNumber}
+                  value={!toggleFlags.isCopy ? formValues.invoiceNumber : ""}
                   name={"invoiceNumber"}
                   disabled={toggleFlags.isEdit}
                   onChange={(event) => editField(event)}
@@ -321,15 +319,16 @@ const InvoiceForm = (props) => {
         <Col md={4} lg={3}>
           <div className="sticky-top pt-md-3 pt-xl-4">
             <Button
+              onClick={openModal}
               variant="outline-primary"
-              type="submit"
               className="d-block w-100"
             >
               Review Invoice
             </Button>
             {!toggleFlags.isView && (
               <Button
-                onClick={() => handleCreateInvoice(toggleFlags.isEdit)}
+                type="submit"
+                // onClick={() => handleCreateInvoice(toggleFlags.isEdit)}
                 variant="primary"
                 className="d-block w-100 mr-t-10"
               >
